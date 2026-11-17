@@ -1,0 +1,700 @@
+<title>Container Utilisation Handoff</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one 880px column read like a spec sheet, with a tab for each piece in the order a user meets them: the FCL button in
+   the Overview header, then the container animation in the popover it opens. Each tab: the live piece first, then its details
+   and its code. Was two pages until 17 Nov (the FCL unit page and the container animation page), then one long page, now tabs. */
+:root{
+  --bg:#F6F7FB; --surface:#FFFFFF; --ink:#15171E; --ink-2:#464B57; --ink-3:#6B7080; --line:#E2E4EC;
+  --accent:#2F3BA6; --accent-soft:#ECEDFF; --brand:#308268; --brand-hover:#276C56; --on-brand:#FFFFFF;
+  --stage:#EEF0F6; --stage-ink:#5B6070; --stage-line:#E4E6EE; --code:#F0F1F6;
+  --c-fade:#9AA3DE; --c-box:#CFA266; --c-door:#3A3E4A; --c-wait:#DADDE7;
+  --f-display:"Inter Tight","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+/* The stages stay light in dark mode: the button and the container keep the product's light-theme colours. */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1117; --surface:#171A22; --ink:#ECEEF4; --ink-2:#B9BECA; --ink-3:#8D93A1; --line:#2A2E3A;
+  --accent:#A9B2FF; --accent-soft:#252A4A; --brand:#308268; --brand-hover:#3A9578; --on-brand:#FFFFFF;
+  --stage:#E8EBF3; --stage-ink:#555A69; --stage-line:#DCDFE8; --code:#1C2029;
+  --c-fade:#8D97D6; --c-box:#D4A86D; --c-door:#C9CDD8; --c-wait:#353A48; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1117; --surface:#171A22; --ink:#ECEEF4; --ink-2:#B9BECA; --ink-3:#8D93A1; --line:#2A2E3A;
+  --accent:#A9B2FF; --accent-soft:#252A4A; --brand:#308268; --brand-hover:#3A9578; --on-brand:#FFFFFF;
+  --stage:#E8EBF3; --stage-ink:#555A69; --stage-line:#DCDFE8; --code:#1C2029;
+  --c-fade:#8D97D6; --c-box:#D4A86D; --c-door:#C9CDD8; --c-wait:#353A48; color-scheme:dark}
+
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:880px;margin:0 auto;padding-block:44px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:48px}
+section,header{display:grid;gap:16px;min-width:0}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:32px;line-height:38px;letter-spacing:-.015em}
+h2{font-size:20px;line-height:26px;letter-spacing:-.01em}
+p{margin:0}
+.eyebrow{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.lede{max-width:64ch;color:var(--ink-2);font-size:16px;line-height:25px}
+.lede a,.sub a,td a{color:var(--accent)}
+.sub{color:var(--ink-2);max-width:64ch}
+code,pre,kbd{font-family:var(--f-mono);font-size:13px;font-variant-ligatures:none}
+:not(pre)>code{background:var(--code);border-radius:4px;padding:1px 5px;font-size:12.5px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+[hidden]{display:none!important}
+
+/* tabs: one per piece, each with a small picture of it and its file. They stick to the top, so you can switch from anywhere down the page.
+   The negative margins pull them closer to the intro and the panel than the page's 48px rhythm. */
+.tabs{position:sticky;top:0;z-index:30;display:flex;gap:28px;margin:-24px 0 -20px;padding-top:8px;background:var(--bg);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{position:relative;display:flex;align-items:center;gap:10px;flex:none;padding:8px 2px 12px;border:0;background:none;color:var(--ink-3);text-align:left}
+.tab:hover{color:var(--ink)}
+.tab:focus-visible{outline-offset:-2px;border-radius:6px}
+.tab[aria-selected="true"]{color:var(--ink)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:var(--accent)}
+.tab-ic{display:grid;place-items:center;width:44px;height:30px;border-radius:7px;flex:none;overflow:hidden}
+.tab-ic.fcl{background:#EBEDFF}
+.tab-ic.anim{background:var(--stage)}
+.tab-ic svg{display:block}
+.tab-tx{display:grid;gap:1px}
+.tab-tx b{font-family:var(--f-display);font-size:16px;line-height:20px;font-weight:600}
+.tab-tx code{background:none;padding:0;font-size:12px;line-height:16px;color:var(--ink-3)}
+
+/* a tab's panel: its intro and file, then its sections */
+.tp{display:grid;gap:40px;min-width:0}
+.tp-h{display:grid;gap:14px}
+.tp,.tp section{scroll-margin-top:84px} /* clear of the stuck tabs */
+
+/* file row */
+.file{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.file-name{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px 6px 8px;font-family:var(--f-mono);font-size:13px}
+.file-name svg{color:var(--ink-3)}
+.file-meta{color:var(--ink-3);font-size:13px;font-variant-numeric:tabular-nums}
+.btn{height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:500;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--ink-3)}
+.btn-primary{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.btn-primary:hover{background:var(--brand-hover);border-color:var(--brand-hover)}
+
+/* live demos */
+.demo{grid-template-columns:minmax(0,1fr) 268px;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.stage{background:var(--stage);display:grid;place-items:center;min-height:248px;padding:28px 20px 20px;position:relative}
+.stage-art{display:flex;justify-content:center;align-items:center;min-height:150px;width:100%}
+.stage-cap{position:absolute;left:16px;right:16px;bottom:12px;font-size:12.5px;color:var(--stage-ink);font-variant-numeric:tabular-nums}
+.stage-cap b{color:#15171E;font-weight:600}
+.panel{padding:18px;display:grid;gap:18px;align-content:start;border-left:1px solid var(--line)}
+fieldset{border:0;margin:0;padding:0;display:grid;gap:8px;min-width:0}
+legend{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:0;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{height:30px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+.chip small{color:var(--ink-3);font-size:11.5px;font-weight:500;margin-left:4px}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.chip[aria-pressed="true"] small{color:var(--accent)}
+.range{display:flex;align-items:center;gap:10px}
+.range input{flex:1;min-width:0;accent-color:var(--accent)}
+.range output{width:40px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;font-size:14px}
+/* the FCL button's two sliders carry a label in front */
+.range.lab{display:grid;grid-template-columns:58px minmax(0,1fr) 44px}
+.range.lab label{font-size:13px;color:var(--ink-2)}
+.range.lab output{width:auto}
+.hint{font-size:12.5px;line-height:18px;color:var(--ink-3)}
+
+/* FCL button: its stage holds a slice of the shipment page's Overview card, in the product's own type: the lavender header the button sits on, and the white card under it */
+.stage.u{place-items:initial;align-content:center;justify-items:center;gap:22px;min-height:300px;padding-bottom:44px}
+.mock{width:min(100%,340px);background:#EBEDFF;border-radius:12px;box-shadow:0 1px 2px rgba(20,22,30,.08);padding:8px 4px 4px;font-family:"Inter",system-ui,sans-serif}
+/* Quiet bars stand in for the rest of the Overview card */
+.mock-sk{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin-top:8px;padding:16px;background:#FFFFFF;border-radius:12px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.mock-sk i{height:8px;border-radius:4px;background:var(--stage-line)}
+.mock-sk i:nth-child(even){width:70%}
+.mock-h{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px;padding:2px 12px;white-space:nowrap}
+.mock-h h4{margin:0;font-family:"Inter Tight","Inter",system-ui,sans-serif;font-size:16px;font-weight:600;line-height:24px;letter-spacing:-.032px;color:#111111}
+.mock-tags{display:flex;align-items:center;gap:8px}
+.zoom{display:grid;justify-items:center;gap:8px}
+.zoom svg{width:156px;height:84px}
+.zoom span{font-size:12.5px;color:var(--stage-ink)}
+
+/* FCL button: every case */
+.cases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.case{background:var(--surface);padding:16px;display:grid;gap:10px;align-content:start;min-width:0}
+.case-art{display:flex;align-items:center;gap:8px;min-height:44px;padding:9px 10px;border-radius:8px;background:#EBEDFF;font-family:"Inter",system-ui,sans-serif}
+.case-art .fcl-u{pointer-events:none}
+.case b{font-weight:600;font-size:14px}
+.case p{font-size:13px;line-height:19px;color:var(--ink-2)}
+
+/* FCL button: states */
+.states{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.state{display:grid;gap:8px;align-content:start;min-width:0}
+.state-art{position:relative;display:flex;justify-content:flex-end;align-items:flex-start;height:132px;padding:14px;border-radius:12px;background:#EBEDFF;font-family:"Inter",system-ui,sans-serif}
+.state-art .fcl-u{pointer-events:none}
+/* Demo only: shows the hover look without a pointer. The real rules are in fcl-unit.js. */
+.state-art.hov .fcl-u{background:rgba(10,11,18,.06)}
+.state-art.hov .fcl-tip{display:block}
+.state-art.foc .fcl-u{background:rgba(10,11,18,.06);outline:2px solid #384A66;outline-offset:2px}
+.state b{font-weight:600;font-size:14px}
+.state p{font-size:13px;line-height:19px;color:var(--ink-2)}
+
+/* container animation: timeline */
+.tl{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;display:grid;gap:10px;overflow-x:auto}
+.tl-row{display:grid;grid-template-columns:150px minmax(0,1fr) 112px;align-items:center;gap:14px;min-width:520px}
+.tl-name{font-size:13.5px;font-weight:500}
+.tl-track{position:relative;height:14px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 100%);background-size:var(--tick) 100%}
+.tl-bar{position:absolute;top:0;bottom:0;border-radius:4px}
+.tl-bar.fade{background:var(--c-fade)}
+.tl-bar.box{background:var(--c-box)}
+.tl-bar.door{background:var(--c-door)}
+.tl-bar.wait{background:repeating-linear-gradient(135deg,var(--c-wait) 0 4px,transparent 4px 8px)}
+.tl-time{font-size:13px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tl-axis{display:grid;grid-template-columns:150px minmax(0,1fr) 112px;gap:14px;min-width:520px}
+.tl-axis div{position:relative;height:16px}
+.tl-axis div span{position:absolute;top:0;transform:translateX(-50%);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tl-axis div span:first-child{transform:none}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:11px 16px;border-top:1px solid var(--line)}
+thead th{border-top:0;font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-block:10px}
+td:first-child{font-weight:500;white-space:nowrap;color:var(--ink)}
+td{color:var(--ink-2)}
+.timing td:nth-child(2){width:30%;font-variant-numeric:tabular-nums}
+
+/* code */
+pre{margin:0;background:var(--code);border-radius:12px;padding:16px 18px;overflow-x:auto;line-height:1.6;color:var(--ink)}
+pre .c{color:var(--ink-3)}
+pre .v{color:var(--accent);font-weight:500}
+.api{display:grid;gap:14px;margin:0}
+.api dt{font-weight:500}
+.api dd{margin:4px 0 0;color:var(--ink-2);max-width:68ch}
+.notes{margin:0;padding-left:20px;display:grid;gap:8px;color:var(--ink-2);max-width:72ch}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+summary{cursor:pointer;padding:14px 18px;font-weight:500;list-style-position:inside}
+details pre{border-radius:0 0 13px 13px;max-height:520px;font-size:12px}
+
+/* shape and colours */
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px;margin:0}
+.facts div{display:grid;gap:2px;padding-top:12px;border-top:1px solid var(--line)}
+.facts dt{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.facts dd{margin:0;color:var(--ink)}
+/* the FCL button's anatomy: its container large on the left, the measurements beside it */
+.anat{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px 32px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.anat-art{background:var(--stage);border-radius:10px;padding:16px;display:grid;place-items:center}
+.anat-art svg{display:block;width:260px;height:auto;max-width:100%}
+.anat .facts{grid-template-columns:minmax(0,1fr);gap:10px}
+.anat .facts div{grid-template-columns:110px minmax(0,1fr);gap:12px;padding-top:10px}
+.anat .facts div:first-child{border-top:0;padding-top:0}
+.anat .facts dt{padding-top:2px}
+.anat .facts dd{font-size:14px}
+.sw{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 16px}
+.sw div{display:flex;align-items:center;gap:10px;min-width:0}
+.sw i{flex:none;width:28px;height:28px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(20,22,30,.14);display:flex;overflow:hidden}
+.sw i b{flex:1}
+.sw span{display:grid;font-size:13px;line-height:17px;min-width:0}
+.sw code{background:none;padding:0;color:var(--ink-3);font-size:12px}
+
+@media (max-width:720px){
+  h1{font-size:27px;line-height:33px}
+  .demo{grid-template-columns:minmax(0,1fr)}
+  .panel{border-left:0;border-top:1px solid var(--line)}
+  .states{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .facts,.anat{grid-template-columns:minmax(0,1fr)}
+  .sw{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:600px){
+  .cases{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:440px){
+  .anat .facts div{grid-template-columns:minmax(0,1fr);gap:2px}
+}
+</style>
+
+<main class="wrap">
+  <header>
+    <p class="eyebrow">Container Utilisation · developer handoff</p>
+    <h1>FCL button and container animation</h1>
+    <p class="lede">The two new pieces of the shipment's Overview card. The FCL button sits in the card's header and shows how full the container is; clicking it opens the utilisation popover, where the 3D container loads. Each is one small file with no libraries, and neither needs anything else from the prototype.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Pieces to build">
+    <button type="button" class="tab" role="tab" id="t-fcl" aria-controls="fcl" aria-selected="true">
+      <span class="tab-ic fcl" id="ic-fcl" aria-hidden="true"></span>
+      <span class="tab-tx"><b>FCL button</b><code>fcl-unit.js</code></span>
+    </button>
+    <button type="button" class="tab" role="tab" id="t-anim" aria-controls="anim" aria-selected="false" tabindex="-1">
+      <span class="tab-ic anim" id="ic-anim" aria-hidden="true"></span>
+      <span class="tab-tx"><b>Container animation</b><code>container-animation.js</code></span>
+    </button>
+  </div>
+
+  <!-- ============ Tab 1: the FCL button ============ -->
+  <section class="tp" id="fcl" role="tabpanel" aria-labelledby="t-fcl">
+    <div class="tp-h">
+      <p class="lede">The button in the shipment's Overview header: the mode, a small container, and the percentage used. That's the higher of space and weight used, and the fill follows it too. One small file works it out from the cargo's volume and weight and draws it. Clicking it opens the utilisation popover, whose container is in the <a href="#anim">Container animation</a> tab.</p>
+      <div class="file">
+        <span class="file-name"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M4 1.75h5.25L12.5 5v9.25H4z"/><path d="M9 1.75V5.25h3.5"/></svg>fcl-unit.js</span>
+        <span class="file-meta" id="u-file-meta">No libraries · plain JavaScript and SVG</span>
+        <button type="button" class="btn" id="u-copy">Copy the code</button>
+      </div>
+    </div>
+
+    <section class="demo" aria-label="Live FCL button">
+      <div class="stage u">
+        <div class="mock"><div class="mock-h"><h4>Overview</h4><div class="mock-tags" id="u-live"></div></div><div class="mock-sk" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>
+        <div class="zoom"><div id="u-zoom"></div><span>The container at 6× size</span></div>
+        <p class="stage-cap" id="u-cap"></p>
+      </div>
+      <div class="panel">
+        <fieldset>
+          <legend>Shipment</legend>
+          <div class="chips" id="u-presets"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Or set it, on a 40' HQ</legend>
+          <div class="range lab"><label for="u-sp">Space</label><input type="range" id="u-sp" min="0" max="100" step="1" value="22"><output id="u-sp-out" for="u-sp">22%</output></div>
+          <div class="range lab"><label for="u-wt">Weight</label><input type="range" id="u-wt" min="0" max="100" step="1" value="8"><output id="u-wt-out" for="u-wt">8%</output></div>
+        </fieldset>
+        <p class="hint">Hover or tab to the button for its tooltip. Click it to see the open state; in the product that opens the utilisation popover.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="u-h-cases">
+      <h2 id="u-h-cases">Every case</h2>
+      <p class="sub">Drawn by <code>fcl-unit.js</code> from the cargo of a 40' HQ (76 CBM, 26,500 kg max), except where it says otherwise.</p>
+      <div class="cases" id="u-cases"></div>
+    </section>
+
+    <section aria-labelledby="u-h-states">
+      <h2 id="u-h-states">States</h2>
+      <div class="states" id="u-states"></div>
+    </section>
+
+    <section aria-labelledby="u-h-rules">
+      <h2 id="u-h-rules">Rules</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>What</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr><td>Space used</td><td>Cargo CBM ÷ (containers × capacity). Capacity is the container's nominal inside volume: 33 CBM for a 20' GP, 67 for a 40' GP, 76 for a 40' HQ.</td></tr>
+            <tr><td>Weight used</td><td>Cargo kg ÷ (containers × max payload): 28,200 kg for a 20' GP, 26,700 for a 40' GP, 26,500 for a 40' HQ.</td></tr>
+            <tr><td>Percentage</td><td>The higher of space used and weight used, rounded, since a container is full when either runs out. With 40% space and 60% weight it reads 60%. Anything above 0 and under 1% reads “&lt;1%”. Not capped, so an overfilled container can read above 100%.</td></tr>
+            <tr><td>Fill length</td><td>17.2 × the percentage shown ÷ 100, in the container's 26 × 14 units, starting at x 2.3. It stops at 100%, at the door line.</td></tr>
+            <tr><td>Fill colour</td><td>Always #7681FC, the Analytics page's volume colour, at any percentage and also when weight is the higher figure. It doesn't change with how full the container is. In the popover the Volume bar uses the same colour and the Weight bar uses #F9B474, the Analytics weight colour.</td></tr>
+            <tr><td>Weight-limited</td><td>Weight at 90% of max payload or more: a “Weight-limited” chip follows the button.</td></tr>
+            <tr><td>Not known yet</td><td>No cargo volume yet: an empty container and a grey “—”. The tooltip says “Space used not known yet”.</td></tr>
+            <tr><td>Tooltip</td><td>On hover or keyboard focus, under the button with the right edges lined up. One line, in regular weight like the carbon tooltip beside it: “49% of space used”. When weight is higher it names weight instead: “60% of weight limit used”. Hidden while the popover is open.</td></tr>
+            <tr><td>Screen readers</td><td>The button reads “FCL, 49% of container space used”, “FCL, 60% of weight limit used”, or “FCL, space used not known yet”. The container drawing is hidden from them.</td></tr>
+            <tr><td>Click</td><td>Opens the utilisation popover (see <a href="#anim">Container animation</a>), whose big figure is the same percentage. Set <code>aria-expanded="true"</code> on the button while it's open; that gives it the white shape and hides the tooltip. The white is made for the lavender Overview header (#EBEDFF), so it won't show on a white background.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="u-h-use">
+      <h2 id="u-h-use">Use it</h2>
+<pre><code><span class="c">&lt;!-- or import it with your bundler --&gt;</span>
+&lt;script src="fcl-unit.js"&gt;&lt;/script&gt;
+
+el.innerHTML = FclUnit.button({
+  mode: 'FCL', type: '40HQ',
+  containers: 1, cbm: 37, kg: 1000            <span class="c">// cbm or kg can be null until known</span>
+});
+
+el.querySelector('[data-fcl]').addEventListener('click', e =&gt; {
+  e.currentTarget.setAttribute('aria-expanded', 'true');  <span class="c">// and open your popover</span>
+});</code></pre>
+      <dl class="api">
+        <div><dt><code>button(shipment)</code></dt><dd>The whole button as an HTML string: “FCL”, the container, the percentage and the tooltip, with the “Weight-limited” chip after it when the cargo is heavy. Put it in a flex row; the product's header row has an 8px gap.</dd></div>
+        <div><dt><code>glyph(space, weight)</code></dt><dd>Just the 26 × 14 container as an SVG string. Both are percentages from 0 to 100, and the fill follows the higher; pass <code>null</code> for space when it isn't known. Use it wherever the container shows on its own.</dd></div>
+        <div><dt><code>measure(shipment)</code></dt><dd>The numbers behind it: space and weight used and the rounded text for each, which one is higher and the figure shown (<code>used</code>, <code>usedText</code>, <code>byWeight</code>), the capacities, and whether it's weight-limited. Use it if you draw the button in your own components.</dd></div>
+        <div><dt><code>capacity</code>, <code>thresholds</code>, <code>colors</code>, <code>css</code></dt><dd>The capacity table (add your other container types to it), the 90% weight-limited line, the colours and the styles. The styles are added to the page the first time it draws.</dd></div>
+      </dl>
+      <ul class="notes">
+        <li>The button takes the page's font. The product uses Inter: 14px semibold, #111, with figures that line up (<code>tabular-nums</code>).</li>
+        <li>In React or Vue, render the string with <code>dangerouslySetInnerHTML</code> or <code>v-html</code>, or rebuild the markup in your own component from <code>measure()</code> and <code>glyph()</code>. The class names all start with <code>fcl-</code>.</li>
+        <li>The product has one container per shipment, so <code>containers</code> is 1. The sum already allows for more.</li>
+      </ul>
+      <details id="u-src-box">
+        <summary>Show the code</summary>
+        <pre><code id="u-src">Loading…</code></pre>
+      </details>
+    </section>
+
+    <section aria-labelledby="u-h-svg">
+      <h2 id="u-h-svg">Without JavaScript</h2>
+      <p class="sub">The container is one fixed SVG with one value to fill in: the fill's width, from the higher of space and weight used. Use this if your stack draws icons another way.</p>
+<pre><code>&lt;svg viewBox="0 0 26 14" width="26" height="14" aria-hidden="true"&gt;
+  &lt;rect x=".75" y=".75" width="24.5" height="12.5" rx="1.4" fill="#FFFFFF" stroke="#1E1E1E" stroke-width="1.3"/&gt;
+  &lt;rect x="2.3" y="2.3" width="<span class="v">{17.2 × higher % ÷ 100}</span>" height="9.4" rx=".6" fill="#7681FC"/&gt;
+  &lt;path d="M6.3 2.6v8.8M10.3 2.6v8.8M14.3 2.6v8.8" stroke="#1E1E1E" stroke-opacity=".18" stroke-width="1"/&gt;
+  &lt;path d="M20.3 1.4v11.2" stroke="#1E1E1E" stroke-width="1.1"/&gt;
+  &lt;path d="M22.4 3.4v7.2" stroke="#1E1E1E" stroke-width="1.1" stroke-linecap="round"/&gt;
+&lt;/svg&gt;</code></pre>
+    </section>
+
+    <section aria-labelledby="u-h-shape">
+      <h2 id="u-h-shape">Shape and colours</h2>
+      <div class="anat">
+        <div class="anat-art" id="u-anat"></div>
+        <dl class="facts">
+          <div><dt>Size</dt><dd>26 × 14 px, one size everywhere. 6px from “FCL” and from the percentage.</dd></div>
+          <div><dt>Body</dt><dd>White, with a 1.3px #1E1E1E outline and 1.4px corners.</dd></div>
+          <div><dt>Fill</dt><dd>9.4px tall, 0.6px corners, from the front wall toward the doors.</dd></div>
+          <div><dt>Wall ridges</dt><dd>Three 1px lines at x 6.3, 10.3 and 14.3, #1E1E1E at 18%. They show through the fill.</dd></div>
+          <div><dt>Doors</dt><dd>A 1.1px door line at x 20.3 and a rounded 1.1px rod at x 22.4.</dd></div>
+        </dl>
+      </div>
+      <div class="sw" id="u-swatches"></div>
+    </section>
+  </section>
+
+  <!-- ============ Tab 2: the container animation ============ -->
+  <section class="tp" id="anim" role="tabpanel" aria-labelledby="t-anim" hidden>
+    <div class="tp-h">
+      <p class="lede">The 3D container in the utilisation popover that the <a href="#fcl">FCL button</a> opens. One small file draws it as SVG at any fill level, slides the cartons in, then swings the doors shut.</p>
+      <div class="file">
+        <span class="file-name"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M4 1.75h5.25L12.5 5v9.25H4z"/><path d="M9 1.75V5.25h3.5"/></svg>container-animation.js</span>
+        <span class="file-meta" id="a-file-meta">No libraries · plain JavaScript and SVG</span>
+        <button type="button" class="btn" id="a-copy">Copy the code</button>
+      </div>
+    </div>
+
+    <section class="demo" aria-label="Live container">
+      <div class="stage">
+        <div class="stage-art" id="a-art"></div>
+        <p class="stage-cap" id="a-cap"></p>
+      </div>
+      <div class="panel">
+        <fieldset>
+          <legend>Fill</legend>
+          <div class="chips" id="a-presets"></div>
+          <div class="range"><input type="range" id="a-fill" min="0" max="100" step="1" value="22" aria-label="Fill level"><output id="a-fill-out" for="a-fill">22%</output></div>
+        </fieldset>
+        <fieldset>
+          <legend>Size</legend>
+          <div class="chips" id="a-sizes"></div>
+          <p class="hint" id="a-size-hint"></p>
+        </fieldset>
+        <button type="button" class="btn btn-primary" id="a-replay"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.75 8a5.25 5.25 0 1 0 1.6-3.77"/><path d="M2.75 2.5v3h3"/></svg>Replay</button>
+        <p class="hint" id="a-rm" hidden>Reduced motion is on for this device, so it shows the finished picture without animating. The product does the same.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="a-h-time">
+      <h2 id="a-h-time">Timeline</h2>
+      <p class="sub" id="a-tl-sum"></p>
+      <div class="tl" id="a-tl"></div>
+      <div class="table-wrap">
+        <table class="timing">
+          <thead><tr><th>Part</th><th>When</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>Container</td><td>0 – 250 ms</td><td>Fades in, ease-out.</td></tr>
+            <tr><td>Each carton</td><td>250 ms + its place × stagger</td><td>420 ms, <code>cubic-bezier(.2, .75, .25, 1)</code>. Slides in from the door end (its distance to the doors, up to 3.2 m, plus 0.8 m) and drops 0.3 m into place, fading in over the first 35%.</td></tr>
+            <tr><td>Stagger</td><td>min(55, 1,000 ÷ cartons) ms</td><td>Whichever is shorter, so every carton has started within about a second, however full the container is.</td></tr>
+            <tr><td>Loading order</td><td></td><td>From the end wall toward the doors, a slice at a time. In each slice, bottom to top, back row first.</td></tr>
+            <tr><td>Doors</td><td>max(900, 250 + cartons × stagger + 420) + 100 ms</td><td>Open at 105° while the cargo goes in, then swing shut over 700 ms, ease-in-out, in 24 steps. The 900 ms minimum lets the popover's meter bars (0.9 s) finish first.</td></tr>
+            <tr><td>After that</td><td></td><td>Nothing keeps running. It's a still SVG.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="a-h-use">
+      <h2 id="a-h-use">Use it</h2>
+<pre><code><span class="c">&lt;!-- or import it with your bundler --&gt;</span>
+&lt;script src="container-animation.js"&gt;&lt;/script&gt;
+
+const c = ContainerAnimation.draw(0.22, { width: 288 });  <span class="c">// fill from 0 to 1</span>
+el.innerHTML = c.svg;
+ContainerAnimation.play(el);                              <span class="c">// plays once; call again to replay</span></code></pre>
+      <dl class="api">
+        <div><dt><code>draw(fill, { width, height })</code></dt><dd>Returns the SVG as a string, with its width and height, the number of cartons (fill × 60, rounded) and the timing for that fill. The popover uses width 288; the Overview note uses 132.</dd></div>
+        <div><dt><code>play(element)</code></dt><dd>Plays the animation once on the SVG inside the element. Call it again to replay. It does nothing, and returns false, when reduced motion is on or the tab is hidden.</dd></div>
+      </dl>
+      <ul class="notes">
+        <li>Without <code>play()</code>, the SVG is the finished picture: cartons in, doors shut. The Overview note uses it that way, still.</li>
+        <li>Every container type uses this one shape. Show the type, like “20' GP”, in text under the drawing.</li>
+        <li>The SVG is hidden from screen readers. Put the % used in text beside it, as the prototype does: the higher of volume and weight, labelled “Volume used” or “Weight used”.</li>
+        <li>In React or Vue, render the string with <code>dangerouslySetInnerHTML</code> or <code>v-html</code>, then call <code>play()</code> on the mounted element. The styles it needs are added to the page the first time it draws, and are also exported as <code>ContainerAnimation.css</code>.</li>
+      </ul>
+      <details id="a-src-box">
+        <summary>Show the code</summary>
+        <pre><code id="a-src">Loading…</code></pre>
+      </details>
+    </section>
+
+    <section aria-labelledby="a-h-shape">
+      <h2 id="a-h-shape">Shape and colours</h2>
+      <dl class="facts">
+        <div><dt>Shape</dt><dd>12.03 × 2.35 × 2.69 m, the inside of a 40' HQ. Used for every container type.</dd></div>
+        <div><dt>Cartons</dt><dd>10 along × 2 across × 3 high, 60 spaces. Filled spaces = fill × 60, rounded.</dd></div>
+        <div><dt>View</dt><dd>Turned 25°, tilted 24°. The near wall and roof are see-through so the cargo shows.</dd></div>
+        <div><dt>Size</dt><dd>Scales to any width; the height follows. 288 × 130 px in the popover, 132 × 63 px in the Overview note.</dd></div>
+      </dl>
+      <div class="sw" id="a-swatches"></div>
+    </section>
+  </section>
+</main>
+
+<script src="fcl-unit.js"></script>
+<script src="container-animation.js"></script>
+<script>
+/* Shared: each part's "Copy the code" button and code box, filled from the file published next to this page. p is the part's id prefix. */
+function codeBox(file, p) {
+  const $ = s => document.querySelector(s);
+  let source = null;
+  fetch(file).then(r => r.ok ? r.text() : Promise.reject()).then(t => {
+    source = t;
+    $(`#${p}-src`).textContent = t;
+    const kb = new Blob([t]).size / 1024;
+    $(`#${p}-file-meta`).textContent = `${kb.toFixed(1)} KB · ${t.split('\n').length} lines · no libraries`;
+  }).catch(() => { $(`#${p}-src`).textContent = `Open ${file}, next to this page.`; });
+
+  $(`#${p}-copy`).addEventListener('click', () => {
+    const btn = $(`#${p}-copy`);
+    const done = msg => { btn.textContent = msg; setTimeout(() => { btn.textContent = 'Copy the code'; }, 1800); };
+    if (!source) { done('Code not loaded yet'); return; }
+    const fallback = () => {
+      $(`#${p}-src-box`).open = true;
+      const r = document.createRange(); r.selectNodeContents($(`#${p}-src`));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      done('Selected, press ⌘C');
+    };
+    try { navigator.clipboard.writeText(source).then(() => done('Copied'), fallback); } catch (e) { fallback(); }
+  });
+}
+
+/* The tabs' small pictures, both at S2: the button's 26 x 14 container, and the 3D container, still */
+document.querySelector('#ic-fcl').innerHTML = FclUnit.glyph(37 / 76 * 100, 1000 / 26500 * 100);
+document.querySelector('#ic-anim').innerHTML = ContainerAnimation.draw(37 / 76, { width: 42 }).svg;
+
+/* ---------- Tab 1: the FCL button ---------- */
+(function(){
+  const F = window.FclUnit;
+  const $ = s => document.querySelector(s);
+  const HQ = F.capacity['40HQ'];
+  const SHIPS = [
+    { label: '89%', note: 'S1', o: { type: '40HQ', size: "40' HQ", cbm: 68, kg: 18400 } },
+    { label: '49%', note: 'S2', o: { type: '40HQ', size: "40' HQ", cbm: 37, kg: 1000 } },
+    { label: '22%', note: 'S3', o: { type: '20GP', size: "20' GP", cbm: 7.3, kg: 2150 } },
+    { label: 'Not known', note: '—', o: { type: '40HQ', size: "40' HQ", cbm: null, kg: null } }
+  ];
+  const hq = (sp, wt) => ({ mode: 'FCL', type: '40HQ', size: "40' HQ", cbm: sp == null ? null : +(HQ.cbm * sp / 100).toFixed(2), kg: wt == null ? null : Math.round(HQ.kg * wt / 100) });
+  const state = { ship: 2, o: Object.assign({ mode: 'FCL' }, SHIPS[2].o) };
+
+  // live demo
+  const presetBox = $('#u-presets');
+  SHIPS.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip';
+    b.innerHTML = `${s.label}<small>${s.note}</small>`;
+    b.addEventListener('click', () => { state.ship = i; state.o = Object.assign({ mode: 'FCL' }, s.o); render(); });
+    presetBox.appendChild(b);
+  });
+
+  function render() {
+    const o = state.o, m = F.measure(o);
+    $('#u-live').innerHTML = F.button(o);
+    $('#u-zoom').innerHTML = F.glyph(m.space, m.weight);
+    [...presetBox.children].forEach((b, i) => b.setAttribute('aria-pressed', String(i === state.ship)));
+    const sp = m.has ? Math.min(100, Math.round(m.space)) : 0, wt = m.weight != null ? Math.min(100, Math.round(m.weight)) : 0;
+    $('#u-sp').value = sp; $('#u-sp-out').textContent = m.has ? m.spaceText + '%' : '—';
+    $('#u-wt').value = wt; $('#u-wt-out').textContent = m.weight != null ? m.weightText + '%' : '—';
+    const hi = Math.max(m.has ? Math.min(100, m.space) : 0, m.weight != null ? Math.min(100, m.weight) : 0);
+    const w = m.has ? (F.shape.fillMax * hi / 100).toFixed(2) : '0';
+    $('#u-cap').innerHTML = m.has
+      ? `Shows <b>${m.usedText}%</b>, the ${m.byWeight ? 'weight' : 'space'} used · fill <b>${w}</b> of 17.2${m.heavy ? ' · weight-limited' : ''}`
+      : 'No cargo volume yet: empty, with a dash';
+    const btn = $('#u-live [data-fcl]');
+    btn.addEventListener('click', () => btn.setAttribute('aria-expanded', btn.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'));
+  }
+  $('#u-sp').addEventListener('input', e => { state.ship = -1; state.o = hq(+e.target.value, +$('#u-wt').value); render(); });
+  $('#u-wt').addEventListener('input', e => { state.ship = -1; state.o = hq(+$('#u-sp').value, +e.target.value); render(); });
+
+  // every case
+  const CASES = [
+    { o: hq(null, null), t: 'Not known yet', d: 'No cargo volume yet. Empty, and a grey dash.' },
+    { o: hq(0.5, 0.3), t: 'Under 1%', d: 'A sliver of fill, and “<1%”.' },
+    { o: { mode: 'FCL', type: '20GP', size: "20' GP", cbm: 7.3, kg: 2150 }, t: '22%, S3', d: '7.3 of 33 CBM in a 20\' GP.' },
+    { o: { mode: 'FCL', type: '40HQ', size: "40' HQ", cbm: 37, kg: 1000 }, t: '49%, S2', d: '37 of 76 CBM.' },
+    { o: { mode: 'FCL', type: '40HQ', size: "40' HQ", cbm: 68, kg: 18400 }, t: '89%, S1', d: '68 of 76 CBM.' },
+    { o: hq(100, 70), t: 'Full', d: 'The fill reaches the door line.' },
+    { o: hq(104, 30), t: 'Over capacity', d: '79 CBM booked into 76. It reads 104%, and the fill stops at the door line.' },
+    { o: hq(40, 60), t: 'Weight is higher', d: '40% space, 60% weight. It shows 60% and fills to 60%, still in the volume colour.' },
+    { o: hq(35, 95), t: 'Weight-limited', d: '35% space, 95% weight. It shows 95%, and the chip follows.' }
+  ];
+  $('#u-cases').innerHTML = CASES.map(c => `<div class="case"><div class="case-art">${F.button(c.o)}</div><b>${c.t}</b><p>${c.d}</p></div>`).join('');
+  $('#u-cases').querySelectorAll('[data-fcl]').forEach(b => { b.tabIndex = -1; b.setAttribute('aria-hidden', 'true'); });
+
+  // states
+  const S2 = { mode: 'FCL', type: '40HQ', size: "40' HQ", cbm: 37, kg: 1000 };
+  const STATES = [
+    { cls: '', t: 'Rest', d: 'No shape. Text #111.' },
+    { cls: 'hov', t: 'Hover', d: 'Grey shape, 6% ink, 6px corners. The tooltip shows.' },
+    { cls: 'foc', t: 'Keyboard focus', d: 'As hover, with the focus ring.' },
+    { cls: 'open', t: 'Open (pressed)', d: 'Popover open: white shape, 6px corners, no tooltip.' }
+  ];
+  $('#u-states').innerHTML = STATES.map(s => `<div class="state"><div class="state-art ${s.cls}">${F.button(S2)}</div><b>${s.t}</b><p>${s.d}</p></div>`).join('');
+  $('#u-states').querySelectorAll('.state-art').forEach(el => {
+    const b = el.querySelector('[data-fcl]');
+    b.tabIndex = -1; b.setAttribute('aria-hidden', 'true');
+    if (el.classList.contains('open')) b.setAttribute('aria-expanded', 'true');
+  });
+  // anatomy: the container at 10x, filled as S2 (49%)
+  $('#u-anat').innerHTML = F.glyph(37 / 76 * 100, 1000 / 26500 * 100);
+
+  // swatches, from the file itself
+  const C = F.colors;
+  const sw = [
+    ['Fill, at any %', C.fill], ['Weight bar in the popover', C.weight], ['Outline and doors', C.outline],
+    ['Text', C.text], ['Not known dash', C.none], ['Tooltip', C.tip],
+    ['Open shape', C.open], ['Overview header', C.header],
+    ['Chip', C.chip], ['Chip text', C.chipText], ['Inside', C.body]
+  ];
+  $('#u-swatches').innerHTML = sw.map(([n, c]) => `<div><i style="background:${c}"></i><span>${n}<code>${c}</code></span></div>`).join('');
+
+  codeBox('fcl-unit.js', 'u');
+  render();
+})();
+
+/* ---------- Tab 2: the container animation ---------- */
+(function(){
+  const A = window.ContainerAnimation;
+  const $ = s => document.querySelector(s);
+  const PRESETS = [
+    { f: 7.3 / 33, label: '22%', note: 'S3' },
+    { f: 37 / 76, label: '49%', note: 'S2' },
+    { f: 68 / 76, label: '89%', note: 'S1' }
+  ];
+  const SIZES = [
+    { w: 288, label: 'Popover', note: '288 px', hint: 'Plays when the popover opens.' },
+    { w: 132, label: 'Overview note', note: '132 px', hint: 'Shown still in the product. Replay here just to see it small.' }
+  ];
+  const state = { f: PRESETS[0].f, w: 288 };
+  const fmt = n => n.toLocaleString('en-GB');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function chips(box, items, isOn, onPick) {
+    box.innerHTML = '';
+    items.forEach(it => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip';
+      b.innerHTML = `${it.label}<small>${it.note}</small>`;
+      b.addEventListener('click', () => onPick(it));
+      box.appendChild(b);
+      it._el = b;
+    });
+    const sync = () => items.forEach(it => it._el.setAttribute('aria-pressed', String(isOn(it))));
+    sync();
+    return sync;
+  }
+
+  let c;
+  function render(playIt) {
+    c = A.draw(state.f, { width: state.w });
+    $('#a-art').innerHTML = c.svg;
+    const pct = Math.round(state.f * 100);
+    $('#a-fill').value = pct; $('#a-fill-out').textContent = pct + '%';
+    $('#a-cap').innerHTML = `<b>${c.cartons}</b> of 60 cartons · ${c.width} × ${c.height} px`;
+    $('#a-size-hint').textContent = SIZES.find(s => s.w === state.w).hint;
+    syncPresets(); syncSizes();
+    timeline(c);
+    if (playIt) A.play($('#a-art'));
+  }
+
+  function timeline(c) {
+    const tm = c.timing, end = tm.doors[1];
+    const pct = v => (v / end * 100).toFixed(2) + '%';
+    const rows = [
+      { name: 'Container fades in', bars: [['fade', tm.fade]], time: `0 – ${tm.fade[1]} ms` },
+      { name: c.cartons ? `${c.cartons} cartons slide in` : 'No cartons', bars: tm.cartons ? [['box', tm.cartons]] : [], time: tm.cartons ? `${fmt(tm.cartons[0])} – ${fmt(tm.cartons[1])} ms` : '—' },
+      { name: 'Doors swing shut', bars: [['wait', [0, tm.doors[0]]], ['door', tm.doors]], time: `${fmt(tm.doors[0])} – ${fmt(tm.doors[1])} ms` }
+    ];
+    const tick = 500, ticks = [];
+    for (let t = 0; t <= end * .94; t += tick) ticks.push(t);
+    const tickPx = (tick / end * 100).toFixed(3) + '%';
+    $('#a-tl').innerHTML = rows.map(r => `<div class="tl-row"><span class="tl-name">${r.name}</span><span class="tl-track" style="--tick:${tickPx}">${r.bars.map(([k, [a, b]]) => `<i class="tl-bar ${k}" style="left:${pct(a)};width:${pct(b - a)}" ${k === 'wait' ? 'title="Doors open, waiting"' : ''}></i>`).join('')}</span><span class="tl-time">${r.time}</span></div>`).join('') +
+      `<div class="tl-axis" aria-hidden="true"><span></span><div>${ticks.map(t => `<span style="left:${pct(t)}">${t ? fmt(t) : '0 ms'}</span>`).join('')}</div><span></span></div>`;
+    $('#a-tl-sum').textContent = `At this fill it runs for ${fmt(end)} ms: ${c.cartons ? `${c.cartons} cartons, one every ${tm.stagger} ms` : 'no cartons'}, then the doors. The striped stretch is the doors standing open while the cargo goes in.`;
+  }
+
+  const syncPresets = chips($('#a-presets'), PRESETS, p => Math.abs(p.f - state.f) < 1e-6, p => { state.f = p.f; render(true); });
+  const syncSizes = chips($('#a-sizes'), SIZES, s => s.w === state.w, s => { state.w = s.w; render(true); });
+
+  $('#a-fill').addEventListener('input', e => { state.f = +e.target.value / 100; render(false); });
+  $('#a-fill').addEventListener('change', () => A.play($('#a-art')));
+  $('#a-replay').addEventListener('click', () => A.play($('#a-art')));
+  const showRm = () => { $('#a-rm').hidden = !reduce.matches; };
+  reduce.addEventListener ? reduce.addEventListener('change', showRm) : reduce.addListener(showRm);
+  showRm();
+
+  // colour swatches, from the file itself
+  const C = A.colors;
+  const sw = [
+    ['Frame and walls', [C.frame], C.frame], ['Edges and door bars', [C.edge], C.edge], ['End wall', [C.end], C.end],
+    ['Floor', [C.floor], C.floor], ['Wall ridges', [C.ridge], C.ridge], ['Inside of the doors', [C.leafIn], C.leafIn],
+    ...C.box.map((t, i) => [`Carton tone ${i + 1}`, t, t.join(' ')])
+  ];
+  $('#a-swatches').innerHTML = sw.map(([name, cols, codeTxt]) => `<div><i>${cols.map(x => `<b style="background:${x}"></b>`).join('')}</i><span>${name}<code>${codeTxt}</code></span></div>`).join('');
+
+  codeBox('container-animation.js', 'a');
+  render(false);
+  /* It plays each time its tab opens, as it does each time the popover opens */
+  $('#anim').addEventListener('tabshown', () => requestAnimationFrame(() => A.play($('#a-art'))));
+})();
+
+/* ---------- Tabs ---------- */
+/* One tab per piece. The address follows the open tab (#fcl, #anim), so a link can open either, and links between the two
+   (href="#anim") switch tabs. Arrow keys, Home and End move between tabs, as in any tab list. */
+(function(){
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  const panelOf = t => document.getElementById(t.getAttribute('aria-controls'));
+  /* where the tabs sit before they stick: 24px under the intro (the page's 48px gap less their -24px margin) */
+  const head = document.querySelector('main > header');
+  const tabsY = () => head.getBoundingClientRect().bottom + scrollY + 24;
+  const smooth = () => matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  function select(tab, opts = {}) {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      panelOf(t).hidden = !on;
+    });
+    if (opts.focus) tab.focus();
+    /* when the tabs are stuck at the top, start the new panel from its top */
+    if (opts.scroll && scrollY > tabsY()) scrollTo(0, tabsY());
+    const id = tab.getAttribute('aria-controls');
+    if (opts.push !== false && location.hash !== '#' + id) { try { history.replaceState(null, '', '#' + id); } catch (e) {} }
+    panelOf(tab).dispatchEvent(new Event('tabshown'));
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t, { scroll: true }));
+    t.addEventListener('keydown', e => {
+      const k = e.key, n = tabs.length;
+      const j = k === 'ArrowRight' ? (i + 1) % n : k === 'ArrowLeft' ? (i - 1 + n) % n : k === 'Home' ? 0 : k === 'End' ? n - 1 : -1;
+      if (j < 0) return;
+      e.preventDefault(); select(tabs[j], { focus: true });
+    });
+  });
+  /* the tab for an address: #fcl, #anim, or anything inside one of them (#a-h-time) */
+  const fromHash = () => {
+    const el = location.hash.length > 1 && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    const panel = el && el.closest('[role="tabpanel"]');
+    return panel ? tabs.find(t => panelOf(t) === panel) : null;
+  };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const el = document.getElementById(a.getAttribute('href').slice(1));
+    const panel = el && el.closest('[role="tabpanel"]');
+    const tab = panel && tabs.find(t => panelOf(t) === panel);
+    if (!tab) return;
+    e.preventDefault();
+    select(tab);
+    if (el === panel) scrollTo({ top: Math.min(scrollY, tabsY()), behavior: smooth() }); else el.scrollIntoView({ behavior: smooth() });
+  });
+  window.addEventListener('hashchange', () => { const t = fromHash(); if (t) select(t, { push: false }); });
+  select(fromHash() || tabs[0], { push: false });
+})();
+</script>
