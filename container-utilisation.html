@@ -122,7 +122,7 @@ h1,h2,h3,p{margin:0}
 .jb.s{color:#8B450C;background:#FDEDE0;border-color:#F9B474}
 .jump-more{display:inline-flex;align-items:center;height:18px;font-size:12px;line-height:16px;font-weight:700;color:#202020;border:1px solid #B1B1B1;border-radius:3px;padding:0 4px;background:var(--canvas);box-shadow:0 1px 1px rgba(0,0,0,.08);flex:none}
 .jump-set{display:inline-grid;place-items:center;width:18px;height:18px;border:0;background:none;padding:0;color:#202020;flex:none}
-/* Prototype bar, as in the Pods prototype: picks the Insights chart's view. Shown on the Insights page only */
+/* Prototype bar, as in the Pods prototype: the Past shipments switch, shown on shipment pages only (Analytics had a chart-view switch here until v92) */
 .proto-ctl{margin-left:auto;display:flex;align-items:center;gap:6px;background:var(--ink);color:#FFFFFF;border-radius:999px;padding:2px 2px 2px 13px;flex:none}
 .proto-ctl[hidden]{display:none}
 .proto-l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;opacity:.7}
@@ -130,7 +130,7 @@ h1,h2,h3,p{margin:0}
 .proto-b:hover{background:rgba(255,255,255,.22)}
 .proto-b[aria-pressed="true"]{background:#FFFFFF;color:#1E1E1E}
 @media (max-width:440px){.proto-l{display:none}.proto-ctl{padding-left:2px}}
-/* under 900px, as in Pods: Jump back in hides and the Prototype bar takes the full row; with no Prototype bar (every page but Insights) the bottom bar hides */
+/* under 900px, as in Pods: Jump back in hides and the Prototype bar takes the full row; with no Prototype bar (every page but a shipment) the bottom bar hides */
 @media (max-width:900px){.jump{display:none}.bottombar{padding:8px 16px}.bottombar:not(:has(.proto-ctl:not([hidden]))){display:none}.proto-ctl{margin-left:0;width:100%;justify-content:space-between}}
 
 /* ===== shared ===== */
@@ -426,29 +426,15 @@ h1,h2,h3,p{margin:0}
 /* Popover, designer's Figma, 6 Nov: no title; the chart first under "Utilisation history", then the figures, then a text button with a chevron (the design system's Button, Type=Text, in ink rather than blue). The Overview note shows the figures only. */
 .hcw .hc-t{margin:0;padding:0;font-size:14px;font-weight:600;line-height:24px;color:#0A0B12}
 .hcw>p{margin-top:16px}
-/* Insights › Analytics › Container Utilisation, from the designer's screenshot (6 Nov, at about 1.1×): tabs 15px medium, 17px apart, a 2px underline under the open tab sitting on a 1px rule.
-   Below it, the utilisation history straight on the page (no card, option D of utilisation-page-colours): heading and period menu, the sentence with a legend,
-   then the popover's first column chart at page size. Columns: red under 30% (the popover's "significant unused space"), today's blue 30–59%, a very pale
-   green from 60%. The green has to be that pale to stay apart from the blue, and the red is a step deeper so red–green colour-blind viewers can tell it from the green. */
-/* Restyled from the designer's Figma (232:32010, 16 Nov): an "Analytics" title over the tabs, 14px tabs with 16px sides, 24px page padding, square columns in
-   red/400 #F46E63 under 30%, blue/500 #1F8FF3 30–59% and green/300 #87E0AD from 60%, and a Volume / Weight switch beside the period menu. A column's colour comes from the higher of its volume and weight (hBand), the same in both views. */
-.in-sec{--in-r:#F46E63;--in-rh:#E0574C;--in-u:#1F8FF3;--in-uh:#1878D0;--in-o:#87E0AD;--in-oh:#62CF90;--in-pv:#7681FC;--in-pvh:#5E6AF0;--in-pw:#F9B474;--in-pwh:#F29D55;--in-wl:#F69546}
+/* Insights › Analytics › Container Utilisation, restyled from the designer's Figma (232:32010, 16 Nov): an "Analytics" title over the tabs, 14px tabs with
+   16px sides and 24px page padding, then the utilisation history straight on the page: the title row with the period menu, the chart, and its legend.
+   One chart since v92 (designer, 17 Nov): Side by side. By shipment (columns in red / blue / green bands, with a Volume / Weight switch) and Line graph are gone. */
+.in-sec{--in-pv:#7681FC;--in-pvh:#5E6AF0;--in-pw:#F9B474;--in-pwh:#F29D55}
 .in-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;min-height:32px;margin-top:28px}
 .in-h h2{font-size:16px;font-weight:600;line-height:16px;letter-spacing:-.048px;color:#111111}
-.in-ctl{display:flex;align-items:center;gap:8px}
-.in-seg{display:inline-flex}
-.in-seg button{height:32px;padding:0 12px;border:1px solid #B1B1B1;background:#FFFFFF;box-shadow:0 1px 1px rgba(0,0,0,.08);font-size:14px;font-weight:500;line-height:16px;letter-spacing:-.042px;color:#6C6C6C;white-space:nowrap}
-.in-seg button:first-child{border-radius:5px 0 0 5px}
-.in-seg button:last-child{border-radius:0 5px 5px 0}
-.in-seg button:hover{color:#202020}
-.in-seg button[aria-pressed="true"]{background:#EBEDFF;border-color:#334BFA;color:#293CC8}
-.in-seg button:focus-visible{position:relative;outline:2px solid #334BFA;outline-offset:1px}
 .in-lg{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;padding:0;list-style:none;font-size:12px;line-height:16px;color:#6C6C6C}
 .in-lg li{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .in-lg i{width:10px;height:10px;border-radius:3px}
-.in-lg .r{background:var(--in-r)}
-.in-lg .u{background:var(--in-u)}
-.in-lg .o{background:var(--in-o)}
 .in-pg{padding:24px calc(24px - var(--sbw)) 48px 24px}
 .in-t{margin:0 0 24px;font-family:var(--ft);font-size:24px;font-weight:600;line-height:32px;letter-spacing:-.12px;color:#111111}
 .in-tabs{display:flex;border-bottom:1px solid #D5D5D5;overflow-x:auto;scrollbar-width:none}
@@ -466,21 +452,8 @@ h1,h2,h3,p{margin:0}
 .in-yr{font-size:10.5px;fill:#9A9A9A}
 .in-avg{font-size:12px;font-weight:600;fill:#464646}
 .ic-b{transition:fill .12s}
-.ic-b.r{fill:var(--in-r)}
-.ic-b.u{fill:var(--in-u)}
-.ic-b.o{fill:var(--in-o)}
-.ic:hover .ic-b.r{fill:var(--in-rh)}
-.ic:hover .ic-b.u{fill:var(--in-uh)}
-.ic:hover .ic-b.o{fill:var(--in-oh)}
-/* Line graph: shipment counts under the months, a faint highlight on the hovered month, legend marks (a line with a filled or hollow point), end labels */
-.in-n{font-size:10.5px;fill:#9A9A9A}
-.ic .hl{fill:#000000;opacity:0;transition:opacity .12s}
-.ic:hover .hl{opacity:.035}
-.in-lg svg{flex:none}
-.in-end{font-size:12px;fill:#464646}
-.in-end tspan{font-weight:600;fill:#202020}
-/* Every chart view (designer, 16 Nov): the title row with By shipment's grey period menu, the chart 14px under it, and the legend centred 14px under the chart
-   (Figma 249:41181's layout). Side by side: volume is Interface/Marine/500, weight Interface/Orange/300 (the Figma's weight swatch is Orange/400; it matches the bars here). */
+/* The chart (designer, 16 Nov): the title row with the grey period menu, the chart 14px under it, and the legend centred 14px under the chart
+   (Figma 249:41181's layout). Volume is Interface/Marine/500, weight Interface/Orange/300 (the Figma's weight swatch is Orange/400; it matches the bars here). */
 .in-h.ch{margin-bottom:14px}
 .in-lg.in-lg-c{justify-content:center;margin-top:14px}
 .in-lg .pv{background:var(--in-pv)}
@@ -654,12 +627,6 @@ h1,h2,h3,p{margin:0}
         <span class="jump-more">+8</span>
         <button type="button" class="jump-set" id="jump-set" data-stub="Jump back in settings" aria-label="Jump back in settings"></button>
       </div>
-      <div class="proto-ctl" id="proto" role="group" aria-label="Prototype: history chart view" hidden>
-        <span class="proto-l">Prototype</span>
-        <button type="button" class="proto-b" data-hview="ship" aria-pressed="false">By shipment</button>
-        <button type="button" class="proto-b" data-hview="vw" aria-pressed="false">Line graph</button>
-        <button type="button" class="proto-b" data-hview="pair" aria-pressed="true">Side by side</button>
-      </div>
       <div class="proto-ctl" id="proto-h" role="group" aria-label="Prototype: the client’s past shipments" hidden>
         <span class="proto-l">Past shipments</span>
         <button type="button" class="proto-b" data-hist="none" aria-pressed="false">None</button>
@@ -816,7 +783,7 @@ function util(s){
   /* The figure shown is the higher of space and weight used (designer, 16 Nov, v86): a container is full when either runs out. up is its text, uw its 0-100 value. */
   return {capCbm,capKg,has,vp,vw,ww,wp,byWt,up:byWt?wp:vp,uw:Math.max(vw,ww),heavy:s.kg!=null&&s.kg/capKg>=.9};
 }
-const S={route:'project',shipTab:'Details',cmtPill:'All',ntHidden:{},hPer:6,hMenu:null,hView:'pair',hMeas:'v',hist:'many'};
+const S={route:'project',shipTab:'Details',cmtPill:'All',ntHidden:{},hPer:6,hMenu:null,hist:'many'};
 
 /* ---------- 3D container illustration ---------- */
 /* 3D container, drawn in the side-nav's line style: white surfaces with dark outlines, a see-through near wall and roof over the cargo, doors open at the right end. Cargo fills from the front wall (left) toward the doors. */
@@ -1346,19 +1313,10 @@ function renderShipment(k){
 
 /* ---------- Insights › Analytics › Container Utilisation ---------- */
 /* Opened by "View utilisation history" in the popover, or by Analytics in the side nav. Only the Container Utilisation tab is built; the others are stubs.
-   The chart is the popover's first column chart (option A of utilisation-history-options) at page width: one column per shipment, oldest to newest,
-   months underneath, a 0–100% axis, and a dashed average. Each column takes its band's colour (IN_BANDS). The page looks the same however it's opened
-   (designer, 16 Nov): a shipment's popover no longer adds that shipment at the end. The page has its own period menu (S.hPer, Past 6 Months to start); the popover always shows 6 months (v83).
-   The Prototype bar also offers 'Line graph' (S.hView 'vw', insVwSvg), volume and weight as two monthly lines,
-   and 'Side by side' (S.hView 'pair', insPairSvg), volume and weight as a pair of bars per shipment with no switch or bands. */
+   The page looks the same however it's opened (designer, 16 Nov). It has its own period menu (S.hPer, Past 6 Months to start); the popover always shows 6 months (v83).
+   One chart, Side by side (insPairSvg): volume and weight as a pair of bars per shipment. The By shipment and Line graph views, and the Prototype bar
+   that switched between the three, were removed in v92 (designer, 17 Nov). */
 const IN_TABS=['CRD','Milestone','Shipments','Transit Time','Inspections','Carbon Emission','Rates','Container Utilisation'];
-const IN_BANDS=[{below:30,k:'r',t:'Under 30%'},{below:60,k:'u',t:'30–59%'},{below:Infinity,k:'o',t:'60% and up'}];
-const inBand=v=>IN_BANDS.find(b=>v<b.below).k;
-/* A shipment's colour (designer, 16 Nov; option A of analytics-colour-rule-options): the band of whichever is higher, volume or weight, since a container
-   is full when it runs out of space or reaches its weight limit. Red only when both are under 30%; green when either is 60% or more. It's the same test the
-   popover and the Overview note use, and the colour doesn't change with the Volume / Weight switch. */
-const hBand=x=>inBand(Math.max(x[4],x[5]));
-const IN_LG=IN_BANDS.map(b=>`<li><i class="${b.k}"></i>${b.t}</li>`).join('');
 function renderInsights(){
   const last=IN_TABS.length-1;
   $('#v-insights').innerHTML=`<h1 class="in-t">Analytics</h1><div class="in-tabs" role="tablist" aria-label="Analytics">${IN_TABS.map((t,i)=>`<button type="button" class="in-tab" role="tab" aria-selected="${i===last}"${i===last?'':` data-stub="${t}"`}>${t}</button>`).join('')}</div>
@@ -1366,89 +1324,22 @@ function renderInsights(){
   const tl=$('.in-tabs'); tl.scrollLeft=tl.scrollWidth; /* on narrow screens the open tab, the last one, starts in view */
   drawInsChart();
 }
-/* Volume / Weight (designer, 16 Nov, option B of analytics-weight-options, styled from Figma 232:32010): the chart shows one at a time. Both views
-   colour each column by its shipment (hBand), so they share the legend.
-   Every view has the same title row and period menu, and its legend centred under the chart (designer, 16 Nov). The tooltips give both figures. */
-const hVal=x=>S.hMeas==='w'?x[5]:x[4];
-const IN_MEAS=[['v','Volume'],['w','Weight']];
+/* The title row with the period menu, the chart 14px under it, and its legend centred under the chart (designer, 16 Nov). */
 function insCardHTML(){
-  const list=hShips(null), ship=S.hView==='ship';
-  const ctl=ship?`<div class="in-ctl"><span class="in-seg" role="group" aria-label="Show">${IN_MEAS.map(([k,l])=>`<button type="button" data-hmeas="${k}" aria-pressed="${S.hMeas===k}">${l}</button>`).join('')}</span>${hPicker('pg')}</div>`:hPicker('pg');
-  if(!list.length) return `<div class="in-h"><h2>Utilisation history</h2>${hPicker('pg')}</div><p class="in-empty">No container shipments ${S.hPer==='all'?'':`in the last ${S.hPer} months `}yet.</p>`;
-  /* By shipment adds the Volume / Weight switch; Side by side and Line graph show volume and weight together */
-  const lg=ship?IN_LG:S.hView==='vw'?VW_LG():'<li><i class="pv"></i>Volume</li><li><i class="pw"></i>Weight</li>';
-  return `<div class="in-h ch"><h2>Utilisation history</h2>${ctl}</div>
+  if(!hShips(null).length) return `<div class="in-h"><h2>Utilisation history</h2>${hPicker('pg')}</div><p class="in-empty">No container shipments ${S.hPer==='all'?'':`in the last ${S.hPer} months `}yet.</p>`;
+  return `<div class="in-h ch"><h2>Utilisation history</h2>${hPicker('pg')}</div>
     <div class="hc" id="in-chart"></div>
-    <ul class="in-lg in-lg-c" aria-label="Legend">${lg}</ul>`;
+    <ul class="in-lg in-lg-c" aria-label="Legend"><li><i class="pv"></i>Volume</li><li><i class="pw"></i>Weight</li></ul>`;
 }
 /* The chart fills the page's height: t is the room from the chart's top to the end of the scroll area, less the page's bottom padding.
-   Each view fits its plot into it, between today's 210px and 640px (150px on phones), so a short window keeps today's size and scrolls. */
+   The chart fits its plot into it, between today's 210px and 640px (150px on phones), so a short window keeps today's size and scrolls. */
 const insFit=h=>{ const b=$('#body'), y0=h.getBoundingClientRect().top-b.getBoundingClientRect().top+b.scrollTop, pad=parseFloat(getComputedStyle($('#v-insights')).paddingBottom)||0; return Math.floor(b.clientHeight-y0-pad); };
 const insPlotH=(W,t,below)=>W<560?150:Math.max(210,Math.min(640,t-22-below));
 function drawInsChart(){ const h=$('#in-chart'); if(!h) return; h.innerHTML=''; /* the old drawing goes first: wider than a shrunk window, it adds a scrollbar that would cut the height */
-  const w=Math.max(280,Math.floor(h.clientWidth)), t=insFit(h); h.dataset.w=w; h.dataset.t=t; h.innerHTML=insSvg(w,t); }
-function insSvg(W,T){
-  if(S.hView==='pair') return insPairSvg(W,T);
-  if(S.hView==='vw') return insVwSvg(W,T);
-  const wt=S.hMeas==='w', list=hShips(null), n=list.length, nm=perMonths(), yrs=nm>12, avg=Math.round(list.reduce((a,x)=>a+hVal(x),0)/n), f1=v=>v.toFixed(1);
-  const gl=38, gr=64, top=22, H=insPlotH(W,T,28+(yrs?14:0)+30), base=top+H, plotW=W-gl-gr, y=v=>top+H*(1-v/100);
-  /* xs: each shipment's centre: one equal slot each, the bar 66% of it, up to 22px */
-  const slot=plotW/n, bw=Math.max(2,Math.min(22,slot*.66)), xs=list.map((x,i)=>gl+slot*(i+.5)), aEnd=gl+plotW;
-  /* hover areas run from the midpoint with one neighbour to the midpoint with the next */
-  const hx=i=>i?(xs[i-1]+xs[i])/2:gl, hx1=i=>i<n-1?(xs[i]+xs[i+1])/2:aEnd;
-  const bar=(x,v,cls)=>`<rect class="${cls}" x="${f1(x-bw/2)}" y="${f1(y(v))}" width="${f1(bw)}" height="${f1(base-y(v))}"/>`; /* square ends, as in the designer's Figma */
-  const hit=(x0,x1,tx,ty,tip)=>`<rect class="hc-hit" x="${f1(x0)}" y="${top}" width="${f1(x1-x0)}" height="${H}" data-tx="${f1(tx)}" data-ty="${f1(ty)}" data-tip="${tip.replace(/"/g,'&quot;')}"/>`;
-  let grid='', cols='', labels='';
-  [0,25,50,75,100].forEach(v=>{ grid+=`<path d="M${gl} ${f1(y(v))}H${f1(W-gr)}" stroke="${v?'#EFEFEF':'#D9D9D9'}"/><text x="${gl-8}" y="${f1(y(v)+3.5)}" text-anchor="end" class="in-ax">${v}%</text>`; });
-  /* the tooltip gives both figures, which shows why a short column can be green (a heavy load); no separate line for it (designer, 16 Nov) */
-  list.forEach((x,i)=>{ const v=hVal(x);
-    cols+=`<g class="ic">${bar(xs[i],v,'ic-b '+hBand(x))}${hit(hx(i),hx1(i),xs[i],y(v),`<b>${x[0]}</b> · ${x[4]}% volume · ${x[5]}% weight<br><span>${x[1]} ${HMONTHS[x[2]][0]} ${HMONTHS[x[2]][1]} · ${SZL[x[3]]}</span>`)}</g>`; });
-  /* month names under each month's columns, with ticks between; the year on the first month and January where it fits, or single letters when months get narrow */
-  const groups=[]; for(let m=NOW-nm;m<NOW;m++){ const idx=list.map((x,i)=>x[2]===m?i:-1).filter(i=>i>=0); if(idx.length) groups.push([m,hx(idx[0]),hx1(idx[idx.length-1])]); }
-  const short=Math.min(...groups.map(g=>g[2]-g[1]))<30;
-  groups.forEach(([m,x0,x1],k)=>{ const mo=HMONTHS[m][0], t=short?mo[0]:!yrs&&(k===0||mo==='Jan')&&x1-x0>=62?`${mo} ${HMONTHS[m][1]}`:mo;
-    labels+=`<text x="${f1((x0+x1)/2)}" y="${base+19}" text-anchor="middle" class="in-mo">${t}</text>${k?`<path d="M${f1(x0)} ${base}v5" stroke="#C9C9C9"/>`:''}`;
-    if(yrs&&(k===0||mo==='Jan')) labels+=`<text x="${f1((x0+x1)/2)}" y="${base+33}" text-anchor="middle" class="in-yr">${HMONTHS[m][1]}</text>`; });
-  const ya=f1(y(avg));
-  return `<svg class="in-svg" viewBox="0 0 ${W} ${base+28+(yrs?14:0)}" width="${W}" height="${base+28+(yrs?14:0)}" role="img" aria-label="${wt?'Weight':'Space'} used by each of ${n} shipments in the last ${nm} months, oldest to newest, average ${avg}%.">
-    ${grid}${cols}<path d="M${gl} ${ya}H${f1(aEnd)}" stroke="#404040" stroke-width="1.2" stroke-dasharray="3 3"/><text x="${f1(W-gr+10)}" y="${f1(+ya+4)}" class="in-avg">Avg ${avg}%</text>${labels}</svg>`;
-}
-
-/* Line graph (designer, 16 Nov), in place of Monthly line: the v67 "Volume and weight by month" chart (option A of analytics-combined-chart-options).
-   The average volume and the average weight of each month's shipments as two lines on 0–100%, each labelled at its end with the latest month's figure,
-   and the shipment count under each month. Laid out like Side by side: no switch, the small period menu, the legend centred under the chart (so the plot
-   leaves 30px for it). Volume is Side by side's Marine/500; weight is Orange/400, a step darker than its bars so a 2px line holds up on white.
-   Each month is one hover group; a month with no shipments has no points and the lines run past it. */
-const VW_LG=()=>`<li>${VW_MK('var(--in-pv)')}Volume</li><li>${VW_MK('var(--in-wl)',true)}Weight</li>`;
-const VW_MK=(c,hollow)=>`<svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true"><path d="M1 5h20" stroke="${c}" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="5" r="3.5" fill="${hollow?'#FFFFFF':c}" stroke="${hollow?c:'#FFFFFF'}" stroke-width="${hollow?2:1.5}"/></svg>`;
-function insVwSvg(W,T){
-  const list=hShips(null), nm=perMonths(), yrs=nm>12, f1=v=>v.toFixed(1), narrow=W<560, gl=38, gr=narrow?24:112, top=22, plotW=W-gl-gr, slot=plotW/nm, counts=!narrow&&slot>=74;
-  const yb=(counts?44:28), H=insPlotH(W,T,yb+(yrs?14:0)+30), base=top+H, y=v=>top+H*(1-v/100);
-  const ms=[]; for(let m=NOW-nm;m<NOW;m++){ const r=list.filter(x=>x[2]===m), c=r.length; ms.push({m,c,v:c?Math.round(r.reduce((a,x)=>a+x[4],0)/c):null,w:c?Math.round(r.reduce((a,x)=>a+x[5],0)/c):null}); }
-  const cx=i=>gl+slot*(i+.5), ok=ms.map((mo,i)=>[mo,i]).filter(([mo])=>mo.c), tall=base+yb+(yrs?14:0);
-  const path=k=>ok.map(([mo,i],j)=>`${j?'L':'M'}${f1(cx(i))} ${f1(y(mo[k]))}`).join('');
-  let grid='', groups='', labels='', dots='', ends='';
-  [0,25,50,75,100].forEach(v=>{ grid+=`<path d="M${gl} ${f1(y(v))}H${f1(W-gr)}" stroke="${v?'#EFEFEF':'#D9D9D9'}"/><text x="${gl-8}" y="${f1(y(v)+3.5)}" text-anchor="end" class="in-ax">${v}%</text>`; });
-  ms.forEach((mo,i)=>{
-    const [mn,yr]=HMONTHS[mo.m], t=slot<34?mn[0]:!yrs&&(i===0||mn==='Jan')&&slot>=62?`${mn} ${yr}`:mn, cnt=`${mo.c} shipment${mo.c===1?'':'s'}`;
-    labels+=`<text x="${f1(cx(i))}" y="${base+19}" text-anchor="middle" class="in-mo">${t}</text>${i?`<path d="M${f1(gl+slot*i)} ${base}v5" stroke="#C9C9C9"/>`:''}`;
-    if(counts) labels+=`<text x="${f1(cx(i))}" y="${base+35}" text-anchor="middle" class="in-n">${cnt}</text>`;
-    if(yrs&&(i===0||mn==='Jan')) labels+=`<text x="${f1(cx(i))}" y="${base+yb+5}" text-anchor="middle" class="in-yr">${yr}</text>`;
-    const tip=mo.c?`<b>${mn} ${yr}</b> · ${cnt}<br><span>Volume ${mo.v}% · Weight ${mo.w}% on average</span>`:`<b>${mn} ${yr}</b><br><span>No shipments</span>`;
-    groups+=`<g class="ic"><rect class="hl" x="${f1(gl+slot*i)}" y="${top}" width="${f1(slot)}" height="${H}"/><rect class="hc-hit" x="${f1(gl+slot*i)}" y="${top}" width="${f1(slot)}" height="${H}" data-tx="${f1(cx(i))}" data-ty="${f1(mo.c?y(Math.max(mo.v,mo.w))-7:base)}" data-tip="${tip.replace(/"/g,'&quot;')}"/></g>`;
-  });
-  ok.forEach(([mo,i])=>{ dots+=`<circle cx="${f1(cx(i))}" cy="${f1(y(mo.v))}" r="4" fill="var(--in-pv)" stroke="#FFFFFF" stroke-width="2"/><circle cx="${f1(cx(i))}" cy="${f1(y(mo.w))}" r="3.5" fill="#FFFFFF" stroke="var(--in-wl)" stroke-width="2"/>`; });
-  /* end labels, kept at least 16px apart so close figures don't overlap */
-  const last=ok[ok.length-1];
-  if(last&&!narrow){ const [mo,i]=last, xl=f1(cx(i)+12); let a=y(mo.v), b=y(mo.w); if(Math.abs(a-b)<16){ const mid=(a+b)/2, s=a<=b?-1:1; a=mid+s*8; b=mid-s*8; }
-    ends=`<text x="${xl}" y="${f1(a+4)}" class="in-end">Volume <tspan>${mo.v}%</tspan></text><text x="${xl}" y="${f1(b+4)}" class="in-end">Weight <tspan>${mo.w}%</tspan></text>`; }
-  return `<svg class="in-svg" viewBox="0 0 ${W} ${tall}" width="${W}" height="${tall}" role="img" aria-label="Average volume and weight used each month over the last ${nm} months: ${ok.map(([mo])=>`${HMONTHS[mo.m][0]} volume ${mo.v}%, weight ${mo.w}%`).join('; ')}.">
-    ${grid}${groups}<path d="${path('v')}" fill="none" stroke="var(--in-pv)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="${path('w')}" fill="none" stroke="var(--in-wl)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${ends}${labels}</svg>`;
-}
-
+  const w=Math.max(280,Math.floor(h.clientWidth)), t=insFit(h); h.dataset.w=w; h.dataset.t=t; h.innerHTML=insPairSvg(w,t); }
 
 /* Side by side (designer, 16 Nov; Figma 249:41181): each shipment, oldest to newest, as two square bars next to each other, volume then weight, with
-   no colour bands. One slot per shipment as in By shipment; the pair takes up to 72% of it, at most 48px, the bars 1px+ apart (the Figma's 22px bars
+   no colour bands. One slot per shipment; the pair takes up to 72% of it, at most 48px, the bars 1px+ apart (the Figma's 22px bars
    and 4px gap at full size). One dashed average (designer, 16 Nov): the mean of each shipment's higher figure, volume or weight, the same test as the
    popover's. The legend is HTML under the chart, so the plot leaves room for it. Hover a pair for the shipment's tooltip. */
 function insPairSvg(W,T){
@@ -1482,7 +1373,6 @@ function go(r){
   $('#v-project').hidden=r!=='project';
   $('#v-shipment').hidden=!shipBy(r);
   $('#v-insights').hidden=r!=='insights';
-  $('#proto').hidden=r!=='insights';
   $('#proto-h').hidden=!shipBy(r);
   $('#body').classList.toggle('lp-on',r==='projects');
   if(r==='projects') renderLanding(); else if(r==='project') renderProject(); else if(r==='insights') renderInsights(); else renderShipment(r);
@@ -1522,8 +1412,6 @@ document.addEventListener('click',e=>{
     if(t.closest('[data-close-nt]')){ S.ntHidden[S.route]=true; renderShipment(S.route); toast(`Hidden for ${shipBy(S.route).sfx}. The FCL button still opens the details.`); return; }
     const pl=t.closest('[data-pill]'); if(pl){ S.cmtPill=pl.dataset.pill; renderShipment(S.route); const nb=$(`[data-pill="${S.cmtPill}"]`); if(nb) nb.focus(); return; }
     const cp=t.closest('[data-copy]'); if(cp){ const v=cp.dataset.copy; (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast('Email address copied'),()=>toast(v)); return; }
-    const hm=t.closest('[data-hmeas]'); if(hm){ S.hMeas=hm.dataset.hmeas; redrawHist(); const f=$(`[data-hmeas="${S.hMeas}"]`); if(f) f.focus(); return; }
-    const hv=t.closest('[data-hview]'); if(hv){ S.hView=hv.dataset.hview; $$('[data-hview]').forEach(b=>b.setAttribute('aria-pressed',String(b===hv))); redrawHist(); return; }
     const st=t.closest('[data-stub]'); if(st){ toast(`${st.dataset.stub} isn't part of this prototype`); return; }
     const r=t.closest('[data-r]'); if(r){ go(r.dataset.r); return; }
   });
